@@ -8,16 +8,16 @@ export default function JwtAuth(props: any) {
   if (!token) {
     return <Navigate to="/login" />;
   }
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  const res = axios.get("/users/verify");
-  res
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((err) => {
+  axios.defaults.headers["authorization"] = token;
+  async function verify() {
+    try {
+      const res = await axios.get("/users/verify1");
+      console.log(res);
+    } catch (err) {
       console.log(err);
       navigate("/login");
-    });
-
+    }
+  }
+  verify();
   return props.children;
 }
