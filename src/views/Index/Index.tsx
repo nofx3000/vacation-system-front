@@ -1,18 +1,20 @@
 import React from "react";
 import { Layout } from "antd";
 import style from "./index.module.scss";
+import { Outlet } from "react-router-dom";
 
-const { Header, Footer, Sider, Content } = Layout;
+const { Header, Sider, Content } = Layout;
 
 const App: React.FC = () => {
   return (
     <Layout>
-      <Header>Header</Header>
+      <Header className={style.header}>Header</Header>
       <Layout>
-        <Sider>Sider</Sider>
-        <Content>Content</Content>
+        <Sider className={style.sider}>Sider</Sider>
+        <Content className={style.content}>
+          <Outlet></Outlet>
+        </Content>
       </Layout>
-      <Footer>Footer</Footer>
     </Layout>
   );
 };
