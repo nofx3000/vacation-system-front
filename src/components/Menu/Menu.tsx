@@ -23,22 +23,34 @@ interface MenuItemInter {
   key?: number;
 }
 
-const items: MenuProps["items"] = [];
+interface StringToIconInter {
+  [IconName: string]: ReactNode
+}
+
+const stringToIconMap: StringToIconInter = {
+  "AppstoreOutlined": <AppstoreOutlined></AppstoreOutlined>,
+  "ContainerOutlined": <ContainerOutlined></ContainerOutlined>,
+  "DesktopOutlined": <DesktopOutlined></DesktopOutlined>,
+  "MailOutlined": <MailOutlined></MailOutlined>
+}
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const menuList: MenuItemInter[] = useSelector(selectMenuList);
+  const [newList, setNewList] = useState<MenuItemInter[]>([])
   //   const [menuList, setMenuList] = useState<MenuItemInter[]>([])
   useEffect(() => {
     dispatch(getMenuListAsync());
     console.log(menuList);
   }, [dispatch]);
   useEffect(() => {
-    console.log("menuList changed", menuList);
-    menuList.map((item) => {
-      item.key = item.id;
-      return item;
+    const a = menuList.map((item) => {
+      return Object.assign({}, item, {
+        key: item.id,
+        icon: stringToIconMap[(item.icon) as string]
+      });
     });
+    setNewList(a);
   }, [menuList]);
   return (
     <div style={{ width: 256 }}>
@@ -47,7 +59,7 @@ const App: React.FC = () => {
         defaultOpenKeys={["sub1"]}
         mode="inline"
         theme="dark"
-        items={menuList as any}
+        items={newList as any}
       />
     </div>
   );
