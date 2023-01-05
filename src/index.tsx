@@ -3,7 +3,10 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import RouterProvider from "./router/index";
+import { Provider } from "react-redux";
 import axios from "axios";
+import store from "./store/store";
+import { App } from "antd";
 axios.defaults.baseURL = "http://localhost:3001/api";
 
 const root = ReactDOM.createRoot(
@@ -11,7 +14,11 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <RouterProvider />
+    <Provider store={store}>
+      <App>
+        <RouterProvider />
+      </App>
+    </Provider>
   </React.StrictMode>
 );
 

@@ -2,6 +2,7 @@ import React from "react";
 import { Layout } from "antd";
 import style from "./index.module.scss";
 import { Outlet } from "react-router-dom";
+import Menu from "../../components/Menu/Menu";
 
 const { Header, Sider, Content } = Layout;
 
@@ -10,7 +11,9 @@ const App: React.FC = () => {
     <Layout>
       <Header className={style.header}>Header</Header>
       <Layout>
-        <Sider className={style.sider}>Sider</Sider>
+        <Sider className={style.sider}>
+          <Menu />
+        </Sider>
         <Content className={style.content}>
           <Outlet></Outlet>
         </Content>
