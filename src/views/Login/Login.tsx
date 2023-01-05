@@ -1,13 +1,18 @@
 import React from "react";
-import { Card, Button, Checkbox, Form, Input, message } from "antd";
+import { Card, Button, Checkbox, Form, Input } from "antd";
 import style from "./login.module.scss";
 import { useNavigate } from "react-router-dom";
+import { setToken } from "../../store/slices/userinfoSlice";
+import { useDispatch } from "react-redux";
+import { App as globalAntd } from "antd";
 import axios from "axios";
 
 const App: React.FC = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [messageApi, contextHolder] = message.useMessage();
+  const staticFunction = globalAntd.useApp();
+  const message = staticFunction.message;
 
   const onFinish = async (values: any) => {
     try {
@@ -15,19 +20,20 @@ const App: React.FC = () => {
       let token: string = res.data.data;
       token = `Bearer ${token}`;
       window.localStorage.setItem("token", token);
+      dispatch(setToken(token));
+      message.success("登陆成功!");
       navigate("/");
     } catch (error) {
-      messageApi.error("用户名或密码错误!");
+      message.error("用户名或密码错误!");
     }
   };
 
   const onFinishFailed = (errorInfo: any) => {
-    messageApi.error("用户名或密码格式错误!");
+    message.error("用户名或密码格式错误!");
   };
 
   return (
     <div className={style.bg}>
-      {contextHolder}
       <Card className={style.card}>
         <p className={style.title}>欢迎来到休假管理系统</p>
         <Form
