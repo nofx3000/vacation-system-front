@@ -1,6 +1,6 @@
 import React from "react";
 import { Layout } from "antd";
-import style from "./index.module.scss";
+import style from "./Index.module.scss";
 import { Outlet } from "react-router-dom";
 import Menu from "../../components/Menu/Menu";
 
