@@ -1,15 +1,13 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect } from "react";
+import style from "./menu.module.scss";
 import {
   AppstoreOutlined,
-  ContainerOutlined,
-  DesktopOutlined,
-  MailOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  PieChartOutlined,
+  TeamOutlined,
+  EditOutlined,
+  OrderedListOutlined,
 } from "@ant-design/icons";
-import { Button, Menu } from "antd";
-import type { MenuProps } from "antd";
+import { Menu } from "antd";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../store/store";
 import { selectMenuList, getMenuListAsync } from "../../store/slices/menuSlice";
@@ -24,44 +22,45 @@ interface MenuItemInter {
 }
 
 interface StringToIconInter {
-  [IconName: string]: ReactNode
+  [IconName: string]: ReactNode;
 }
 
 const stringToIconMap: StringToIconInter = {
-  "AppstoreOutlined": <AppstoreOutlined></AppstoreOutlined>,
-  "ContainerOutlined": <ContainerOutlined></ContainerOutlined>,
-  "DesktopOutlined": <DesktopOutlined></DesktopOutlined>,
-  "MailOutlined": <MailOutlined></MailOutlined>
-}
+  AppstoreOutlined: <AppstoreOutlined></AppstoreOutlined>,
+  TeamOutlined: <TeamOutlined></TeamOutlined>,
+  EditOutlined: <EditOutlined></EditOutlined>,
+  OrderedListOutlined: <OrderedListOutlined></OrderedListOutlined>,
+};
 
-const App: React.FC = () => {
+const App: React.FC<React.HTMLAttributes<HTMLDivElement>> = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const menuList: MenuItemInter[] = useSelector(selectMenuList);
-  const [newList, setNewList] = useState<MenuItemInter[]>([])
-  //   const [menuList, setMenuList] = useState<MenuItemInter[]>([])
   useEffect(() => {
     dispatch(getMenuListAsync());
-    console.log(menuList);
   }, [dispatch]);
-  useEffect(() => {
-    const a = menuList.map((item) => {
+  function formatMenuList(menuList: MenuItemInter[]): MenuItemInter[] {
+    return menuList.map((item) => {
       return Object.assign({}, item, {
-        key: item.id,
-        icon: stringToIconMap[(item.icon) as string]
+        key: item.path,
+        icon: stringToIconMap[item.icon as string],
       });
     });
-    setNewList(a);
-  }, [menuList]);
+  }
+
   return (
-    <div style={{ width: 256 }}>
+    <>
       <Menu
-        defaultSelectedKeys={["1"]}
-        defaultOpenKeys={["sub1"]}
+        className={style.menu}
+        defaultSelectedKeys={["/home"]}
         mode="inline"
         theme="dark"
-        items={newList as any}
+        items={formatMenuList(menuList) as any}
+        onClick={(item) => {
+          navigate(item.key);
+        }}
       />
-    </div>
+    </>
   );
 };
 

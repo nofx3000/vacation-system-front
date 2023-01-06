@@ -25,9 +25,7 @@ export default function JwtAuth(props: any) {
   async function verify() {
     try {
       const res = await dispatch(verifyTokenAsync());
-      console.log(res);
     } catch (err) {
-      console.log("verify meet err");
       navigate("/login");
     }
   }

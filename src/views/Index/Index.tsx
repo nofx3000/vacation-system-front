@@ -11,8 +11,8 @@ const App: React.FC = () => {
     <Layout>
       <Header className={style.header}>Header</Header>
       <Layout>
-        <Sider className={style.sider}>
-          <Menu />
+        <Sider className={style.sider} breakpoint="lg">
+          <Menu className="s" />
         </Sider>
         <Content className={style.content}>
           <Outlet></Outlet>
