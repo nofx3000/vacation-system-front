@@ -1,0 +1,16 @@
+.card-wraper {
+  margin-right: 1vw;
+  margin-bottom: 1vh;
+}
+.card {
+  width: 18vw;
+  p {
+    margin: 0.5vh 0;
+  }
+  .button-area {
+    float: right;
+    button {
+      margin-right: 0.5vw !important;
+    }
+  }
+}

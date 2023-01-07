@@ -1,10 +1,12 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import userinfoReducer from "./slices/userinfoSlice";
 import menuReducer from "./slices/menuSlice";
+import peopleReducer from "./slices/peopleSlice";
 const store = configureStore({
   reducer: {
     userinfoReducer,
     menuReducer,
+    peopleReducer,
   },
 });
 

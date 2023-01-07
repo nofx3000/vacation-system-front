@@ -6,6 +6,7 @@ import {
 import JwtAuth from "../utils/JwtAuth";
 import Login from "../views/Login/Login";
 import Index from "../views/Index/Index";
+import BasicInfo from "../views/BasicInfo/BasicInfo";
 
 const router = createBrowserRouter([
   {
@@ -30,7 +31,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/basic-info",
-        element: <div>basic-info</div>,
+        element: <BasicInfo />,
       },
       {
         path: "/input-record",
