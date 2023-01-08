@@ -9,7 +9,7 @@ const { Header, Sider, Content } = Layout;
 const App: React.FC = () => {
   return (
     <Layout>
-      <Header className={style.header}>Header</Header>
+      {/* <Header className={style.header}>Header</Header> */}
       <Layout>
         <Sider className={style.sider} breakpoint="lg">
           <Menu className="s" />

@@ -1,5 +1,5 @@
 .card-wraper {
-  margin-right: 1vw;
+  margin-right: 2vw;
   margin-bottom: 1vh;
 }
 .card {
@@ -13,4 +13,25 @@
       margin-right: 0.5vw !important;
     }
   }
+}
+.form-item {
+  margin-bottom: 1vh !important;
+  button {
+    margin-right: 0.5vw !important;
+  }
+}
+
+.add {
+  font-size: 2vh;
+  font-weight: 600;
+  color: #194cf0;
+  line-height: 20vh;
+  &:hover {
+    color: rgb(104, 139, 244);
+    cursor: pointer;
+  }
+}
+
+.data-card {
+  padding-left: 2vw;
 }

@@ -15,7 +15,6 @@ const { Panel } = Collapse;
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const peopleInfoByDivision = useSelector(selectPeopleInfoByDivison);
-  const [isAdding, setIsAdding] = useState(false);
   useEffect(() => {
     dispatch(getPeopleInfoListAsync());
   }, []);
@@ -28,11 +27,7 @@ const App: React.FC = () => {
     <Collapse defaultActiveKey={["1"]} onChange={onChange}>
       {peopleInfoByDivision.map((division) => {
         return (
-          <Panel
-            header={division.name}
-            key={division.id as number}
-            className={style.panel}
-          >
+          <Panel header={division.name} key={division.id as number}>
             <div className={style["card-container"]}>
               {division.people.map((person) => (
                 <BasicInfoCard
@@ -41,23 +36,10 @@ const App: React.FC = () => {
                   division_id={division.id}
                 />
               ))}
-              {isAdding ? (
-                <BasicInfoCard
-                  initialStatus="add"
-                  division_id={division.id}
-                  closeAdding={() => {
-                    setIsAdding(false);
-                  }}
-                ></BasicInfoCard>
-              ) : (
-                <div
-                  onClick={() => {
-                    setIsAdding(true);
-                  }}
-                >
-                  <span className={style.add}>+添加休假人信息</span>
-                </div>
-              )}
+              <BasicInfoCard
+                initialStatus="+"
+                division_id={division.id}
+              ></BasicInfoCard>
             </div>
           </Panel>
         );

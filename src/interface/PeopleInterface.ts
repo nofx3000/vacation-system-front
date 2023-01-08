@@ -1,7 +1,7 @@
 export interface PersonInfoInter {
   id?: number;
   name?: string;
-  catatory?: number;
+  catagory?: number;
   work_age?: number;
   total_holiday?: number;
   spent_holiday?: number;

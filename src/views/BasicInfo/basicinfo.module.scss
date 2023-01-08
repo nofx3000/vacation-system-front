@@ -2,13 +2,3 @@
   display: flex;
   flex-wrap: wrap;
 }
-.add {
-  font-size: 2vh;
-  font-weight: 600;
-  color: #194cf0;
-  line-height: 20vh;
-  &:hover {
-    color: rgb(104, 139, 244);
-    cursor: pointer;
-  }
-}
