@@ -35,17 +35,27 @@ const App: React.FC = () => {
           >
             <div className={style["card-container"]}>
               {division.people.map((person) => (
-                <BasicInfoCard personinfo={person} key={person.id} />
+                <BasicInfoCard
+                  personinfo={person}
+                  key={person.id}
+                  division_id={division.id}
+                />
               ))}
               {isAdding ? (
-                <BasicInfoCard initialStatus="add"></BasicInfoCard>
+                <BasicInfoCard
+                  initialStatus="add"
+                  division_id={division.id}
+                  closeAdding={() => {
+                    setIsAdding(false);
+                  }}
+                ></BasicInfoCard>
               ) : (
                 <div
                   onClick={() => {
                     setIsAdding(true);
                   }}
                 >
-                  +++++
+                  <span className={style.add}>+添加休假人信息</span>
                 </div>
               )}
             </div>

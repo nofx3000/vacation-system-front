@@ -1,31 +1,60 @@
-import React, { ReactElement, useState } from "react";
-import { Card, Button, Input, Form, Select, Radio, InputNumber } from "antd";
+import React, { ReactElement, useRef, useState } from "react";
+import {
+  Card,
+  Button,
+  Input,
+  Form,
+  Select,
+  Radio,
+  InputNumber,
+  Popconfirm,
+} from "antd";
 import { PersonInfoInter } from "../../interface/PeopleInterface";
 import style from "./basicinfo-card.module.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../store/store";
-import { addPersonInfoAsync } from "../../store/slices/peopleSlice";
+import axios from "axios";
+import { App as globalAntd } from "antd";
+import { getPeopleInfoListAsync } from "../../store/slices/peopleSlice";
 
 interface CardProps {
-  personinfo?: PersonInfoInter;
+  division_id: number;
   initialStatus?: CardStatus;
+  personinfo?: PersonInfoInter;
+  closeAdding?: () => void;
 }
 
 type CardStatus = "data" | "edit" | "add";
 
 const App: React.FC<CardProps> = (props) => {
   const dispatch = useDispatch<AppDispatch>();
+  const staticFunction = globalAntd.useApp();
+  const message = staticFunction.message;
 
   const [status, setStatus] = useState<CardStatus>(
     props.initialStatus as CardStatus
   );
 
-  let { personinfo: tmp } = props;
-  const personinfo = tmp as any;
+  const formRef = useRef(null);
 
-  const onAddFinish = (values: any) => {
-    dispatch(addPersonInfoAsync(values));
-    console.log("Success:", values);
+  let { personinfo: tmp } = props;
+  const personinfo = tmp as PersonInfoInter;
+
+  const onAddFinish = async (values: PersonInfoInter) => {
+    values.division_id = props.division_id; // specify division
+    const res = await axios.post("people/add", values);
+    if (res.data.errno) {
+      message.error(res.data.message);
+      return;
+    }
+    dispatch(getPeopleInfoListAsync());
+    (formRef as any).current.resetFields();
+    (props.closeAdding as any)();
+  };
+
+  const closeAdding = (): void => {
+    (formRef as any).current.resetFields();
+    (props.closeAdding as any)();
   };
   const onAddFailed = (values: any) => {
     console.log("Success:", values);
@@ -66,13 +95,17 @@ const App: React.FC<CardProps> = (props) => {
       return (
         <div>
           <Form
+            ref={formRef}
             name="basic"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             initialValues={
               status === "edit"
-                ? props.personinfo
-                : { total_holiday: 20, spent_holiday: 0 }
+                ? personinfo
+                : {
+                    total_holiday: 20,
+                    spent_holiday: 0,
+                  }
             }
             onFinish={status === "add" ? onAddFinish : onEidtFinish}
             onFinishFailed={status === "add" ? onAddFailed : onEditFailed}
@@ -80,7 +113,7 @@ const App: React.FC<CardProps> = (props) => {
           >
             <Form.Item
               label="姓名"
-              name="username"
+              name="name"
               rules={[{ required: true, message: "请输入姓名" }]}
             >
               <Input />
@@ -149,9 +182,18 @@ const App: React.FC<CardProps> = (props) => {
                 <Button type="primary" htmlType="submit">
                   添加
                 </Button>
-                <Button type="primary" danger>
-                  放弃
-                </Button>
+                <Popconfirm
+                  placement="top"
+                  title="放弃添加"
+                  description="是否确认添加休假人信息？"
+                  onConfirm={closeAdding}
+                  okText="是"
+                  cancelText="否"
+                >
+                  <Button type="primary" danger>
+                    放弃
+                  </Button>
+                </Popconfirm>
               </Form.Item>
             ) : (
               <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -175,29 +217,6 @@ const App: React.FC<CardProps> = (props) => {
         bordered={false}
         className={style.card}
       >
-        {/* {isEdit ? (
-          
-        ) : (
-          
-        )}
-        {isEdit ? (
-          <div className={style["button-area"]}>
-            <Button type="primary">保存</Button>
-            <Button danger>放弃修改</Button>
-          </div>
-        ) : (
-          <div className={style["button-area"]}>
-            <Button
-              type="primary"
-              onClick={() => {
-                setIsEdit("edit");
-              }}
-            >
-              编辑
-            </Button>
-            <Button danger>删除</Button>
-          </div>
-        )} */}
         {renderByStatus(status)}
       </Card>
     </div>

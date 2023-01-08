@@ -43,7 +43,10 @@ export const addPersonInfoAsync = createAsyncThunk(
   "people/addPersonInfo",
   async (personinfo: PersonInfoInter) => {
     const res = await axios.post("people/add", personinfo);
-    console.log("123123", res);
+    if (res.data.errno) {
+      throw Error(res.data.message);
+    }
+    return res;
   }
 );
 
@@ -63,10 +66,10 @@ export const PeopleSlice = createSlice({
       throw Error("getting peopleInfoList failed");
     });
     builder.addCase(addPersonInfoAsync.fulfilled, (state, action) => {
-      console.log("add personinfo success");
+      console.log("add personinfo success", action.payload);
     });
     builder.addCase(addPersonInfoAsync.rejected, (state, action) => {
-      throw Error("add personinfo failed");
+      console.error(action.error.message);
     });
   },
 });
