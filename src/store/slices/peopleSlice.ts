@@ -1,25 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState, AppDispatch, AppThunk } from "../store";
 import axios from "axios";
+import { PersonInfoInter } from "../../interface/PeopleInterface";
+import { DivisionInter } from "../../interface/DivisionInterface";
 
-export interface PersonInfoInter {
-  id?: number;
-  name?: string;
-  catatory?: number;
-  work_age?: number;
-  total_holiday?: number;
-  spent_holiday?: number;
-  division_id?: number;
-  married?: boolean;
-  not_with_parent?: boolean;
-  not_with_partner?: boolean;
-  comment?: string;
-}
-
-export interface DivisionInter {
-  id: number;
-  name: string;
-  people: PersonInfoInter[];
+export interface PeopleState {
+  peopleInfoByDivison: DivisionInter[];
 }
 
 export interface PeopleState {

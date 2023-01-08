@@ -25,7 +25,7 @@ interface CardProps {
 
 type CardStatus = "data" | "edit" | "add" | "+";
 
-const App: React.FC<CardProps> = (props) => {
+const App: React.FC<CardProps> = (props: CardProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const staticFunction = globalAntd.useApp();
   const message = staticFunction.message;

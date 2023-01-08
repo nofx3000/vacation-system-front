@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../store/store";
 import { useEffect } from "react";
 import BasicInfoCard from "../../components/BasicInfoCard/BasicInfoCard";
+import { PersonInfoInter } from "../../interface/PeopleInterface";
+import { DivisionInter } from "../../interface/DivisionInterface";
 
 const { Panel } = Collapse;
 
@@ -29,13 +31,15 @@ const App: React.FC = () => {
         return (
           <Panel header={division.name} key={division.id as number}>
             <div className={style["card-container"]}>
-              {division.people.map((person) => (
-                <BasicInfoCard
-                  personinfo={person}
-                  key={person.id}
-                  division_id={division.id}
-                />
-              ))}
+              {(division.people as any).map(
+                (person: PersonInfoInter | DivisionInter) => (
+                  <BasicInfoCard
+                    personinfo={person}
+                    key={person.id}
+                    division_id={division.id}
+                  />
+                )
+              )}
               <BasicInfoCard
                 initialStatus="+"
                 division_id={division.id}
