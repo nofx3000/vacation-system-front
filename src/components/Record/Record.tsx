@@ -1,72 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../store/store";
-import {
-  getPeopleInfoListAsync,
-  selectPeopleInfoByDivison,
-} from "../../store/slices/peopleSlice";
+import { getPeopleInfoListAsync } from "../../store/slices/peopleSlice";
 import {
   getRecordsByPersonIdAsync,
-  selectRecordsByPersonId,
   changeRecordStatus,
   selectRecordStatus,
   selectTmpPhaseGroup,
   selectCurrentPersonId,
-  setCurrentPersonId,
   resetTmpPhaseById,
-  resetRecordsByPersonId,
+  setShowAdding,
+  selectShowAdding,
 } from "../../store/slices/recordSlice";
-import { Cascader, Layout, Card, Button, InputNumber } from "antd";
-import { PersonInfoInter } from "../../interface/PeopleInterface";
-import { DivisionInter } from "../../interface/DivisionInterface";
+import { Card, Button, InputNumber } from "antd";
 import { RecordInter, PhaseInter } from "../../interface/RecordInterface";
-import TimeLine from "../TimeLine/TimeLine";
+// import TimeLine from "../TimeLine/TimeLine";
 import { App as globalAntd } from "antd";
 import Phase from "../Phase/Phase";
 import axios from "axios";
-const { Header, Sider, Content } = Layout;
-
-interface Option {
-  value: string | number;
-  label: string;
-  children?: any[];
-}
 
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const staticFunction = globalAntd.useApp();
   const message = staticFunction.message;
-  const peopleinfo: PersonInfoInter[] = useSelector(selectPeopleInfoByDivison);
-  const recordsByPersonId: RecordInter[] = useSelector(selectRecordsByPersonId);
   const recordStatus: "default" | "add" | "edit" =
     useSelector(selectRecordStatus);
+  const showAdding: boolean = useSelector(selectShowAdding);
   const tmpPhaseGroup: PhaseInter[] = useSelector(selectTmpPhaseGroup);
   const currentPersonId: number | undefined = useSelector(
     selectCurrentPersonId
   );
-  const [showAdding, setShowAdding] = useState(true);
   const [discount, setDiscount] = useState<number | null>(0);
   const [vacationLength, setVacationLength] = useState(0);
   const [spent, setSpent] = useState(0);
 
   const onDiscountChange = (value: number | null): void | undefined => {
     setDiscount(value);
-  };
-
-  const onPersonChange = (value: any) => {
-    if (!value) {
-      dispatch(resetTmpPhaseById());
-      setShowAdding(true);
-      dispatch(changeRecordStatus("default"));
-      dispatch(resetRecordsByPersonId());
-      return;
-    }
-    const id: number = value[1];
-    dispatch(getRecordsByPersonIdAsync(id));
-    dispatch(setCurrentPersonId(id));
-    dispatch(resetTmpPhaseById());
-    setShowAdding(true);
-    dispatch(changeRecordStatus("default"));
   };
 
   useEffect(() => {
@@ -96,23 +65,6 @@ const App: React.FC = () => {
     calcVacationLength(tmpPhaseGroup);
   }, [tmpPhaseGroup]);
 
-  const formatPeopleInfo = (
-    arr: DivisionInter[] | PersonInfoInter[]
-  ): Option[] | any => {
-    return arr.map((data: DivisionInter | PersonInfoInter) => {
-      if (!(data as any).people)
-        return { value: data.id as number, label: data.name as string };
-      const formatedPersonInfo: Option = {
-        value: data.id as number,
-        label: data.name as string,
-        children: (data as any).people
-          ? formatPeopleInfo((data as any).people)
-          : null,
-      };
-      return formatedPersonInfo;
-    });
-  };
-
   const addRecord = () => {
     dispatch(changeRecordStatus("add"));
   };
@@ -122,7 +74,7 @@ const App: React.FC = () => {
       message.error("休假日程不能超过3段");
       return;
     }
-    setShowAdding(false);
+    dispatch(setShowAdding(false));
     console.log(tmpPhaseGroup);
   };
 
@@ -142,7 +94,7 @@ const App: React.FC = () => {
       message.error(res.data.message);
     }
     dispatch(getRecordsByPersonIdAsync(currentPersonId as number));
-    setShowAdding(true);
+    dispatch(setShowAdding(true));
     dispatch(changeRecordStatus("default"));
     dispatch(resetTmpPhaseById());
     message.success("添加成功");
@@ -166,7 +118,7 @@ const App: React.FC = () => {
                 phaseData={phase}
                 key={Math.random()}
                 showAddingButton={() => {
-                  setShowAdding(true);
+                  dispatch(setShowAdding(true));
                 }}
               ></Phase>
             );
@@ -178,7 +130,7 @@ const App: React.FC = () => {
               initialStatus="add"
               key={Math.random()}
               showAddingButton={() => {
-                setShowAdding(true);
+                dispatch(setShowAdding(true));
               }}
             ></Phase>
           )}
