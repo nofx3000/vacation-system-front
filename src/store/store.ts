@@ -1,4 +1,6 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
+import { getDefaultMiddleware } from "@reduxjs/toolkit";
+
 import userinfoReducer from "./slices/userinfoSlice";
 import menuReducer from "./slices/menuSlice";
 import peopleReducer from "./slices/peopleSlice";
@@ -10,6 +12,10 @@ const store = configureStore({
     peopleReducer,
     recordReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

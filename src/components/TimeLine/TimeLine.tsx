@@ -20,9 +20,11 @@ const App: React.FC<TimeLineProps> = (props: TimeLineProps) => {
           {record.phase.map((item) => {
             return (
               <div>
-                <span>{item.destination}</span>
-                <span>{item.start_at.valueOf()}</span>
-                <span>{item.end_at.valueOf()}</span>
+                <span>
+                  {(item.start_at as Date).valueOf()}——
+                  {(item.end_at as Date).valueOf()}:{item.destination}{" "}
+                  {item.address}
+                </span>
               </div>
             );
           })}
@@ -39,15 +41,11 @@ const App: React.FC<TimeLineProps> = (props: TimeLineProps) => {
 
   return (
     <>
-      {props.records ? (
-        <Timeline>
-          {(props.records as any).map((record: RecordInter) => {
-            return renderTimelineItem(record);
-          })}
-        </Timeline>
-      ) : (
-        <div>无</div>
-      )}
+      <Timeline>
+        {(props.records as any).map((record: RecordInter) => {
+          return renderTimelineItem(record);
+        })}
+      </Timeline>
     </>
   );
 };

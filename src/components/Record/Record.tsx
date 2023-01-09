@@ -20,10 +20,9 @@ import { Cascader, Layout, Card, Button, InputNumber } from "antd";
 import { PersonInfoInter } from "../../interface/PeopleInterface";
 import { DivisionInter } from "../../interface/DivisionInterface";
 import { RecordInter, PhaseInter } from "../../interface/RecordInterface";
-import TimeLine from "../../components/TimeLine/TimeLine";
-import style from "./input-record.module.scss";
+import TimeLine from "../TimeLine/TimeLine";
 import { App as globalAntd } from "antd";
-import Phase from "../../components/Phase/Phase";
+import Phase from "../Phase/Phase";
 import axios from "axios";
 const { Header, Sider, Content } = Layout;
 
@@ -148,85 +147,68 @@ const App: React.FC = () => {
     dispatch(resetTmpPhaseById());
     message.success("添加成功");
   };
+
+  const render = () => {
+    if (recordStatus === "default") {
+      if (currentPersonId) {
+        return <span onClick={addRecord}>+添加休假记录</span>;
+      } else {
+        return <span>请选择休假人</span>;
+      }
+    } else {
+      return (
+        <div>
+          {tmpPhaseGroup.map((phase, index) => {
+            return (
+              <Phase
+                initialStatus="default"
+                indexInTmpGroup={index}
+                phaseData={phase}
+                key={Math.random()}
+                showAddingButton={() => {
+                  setShowAdding(true);
+                }}
+              ></Phase>
+            );
+          })}
+          {showAdding ? (
+            <div onClick={showPhaseForm}>+</div>
+          ) : (
+            <Phase
+              initialStatus="add"
+              key={Math.random()}
+              showAddingButton={() => {
+                setShowAdding(true);
+              }}
+            ></Phase>
+          )}
+          <p>休假天数: {vacationLength}天</p>
+          <span>
+            减免假期天数：
+            <InputNumber
+              min={0}
+              max={vacationLength}
+              onChange={onDiscountChange}
+              defaultValue={0}
+            ></InputNumber>
+            天
+          </span>
+          <p>实际扣除天数: {spent}天</p>
+          <div>
+            <Button type="primary" onClick={submitRecord}>
+              提交休假记录
+            </Button>
+            <Button type="primary" danger>
+              放弃提交
+            </Button>
+          </div>
+        </div>
+      );
+    }
+  };
   return (
     <>
-      <Layout>
-        <Header className={style.header}>
-          <span>选择休假人: </span>
-          <Cascader
-            options={formatPeopleInfo(peopleinfo)}
-            onChange={onPersonChange}
-            placeholder="Please select"
-          />
-        </Header>
-        <Layout>
-          <Content className={style.content}>
-            <Card>
-              {recordStatus === "default" ? (
-                currentPersonId ? (
-                  <span onClick={addRecord}>+添加休假记录</span>
-                ) : (
-                  <span>请选择休假人</span>
-                )
-              ) : (
-                <div>
-                  {tmpPhaseGroup.map((phase, index) => {
-                    return (
-                      <Phase
-                        initialStatus="default"
-                        indexInTmpGroup={index}
-                        phaseData={phase}
-                        key={Math.random()}
-                        showAddingButton={() => {
-                          setShowAdding(true);
-                        }}
-                      ></Phase>
-                    );
-                  })}
-                  {showAdding ? (
-                    <div onClick={showPhaseForm}>+</div>
-                  ) : (
-                    <Phase
-                      initialStatus="add"
-                      key={Math.random()}
-                      showAddingButton={() => {
-                        setShowAdding(true);
-                      }}
-                    ></Phase>
-                  )}
-                  <p>休假天数: {vacationLength}天</p>
-                  <span>
-                    减免假期天数：
-                    <InputNumber
-                      min={0}
-                      max={vacationLength}
-                      onChange={onDiscountChange}
-                      defaultValue={0}
-                    ></InputNumber>
-                    天
-                  </span>
-                  <p>实际扣除天数: {spent}天</p>
-                  <div>
-                    <Button type="primary" onClick={submitRecord}>
-                      提交休假记录
-                    </Button>
-                    <Button type="primary" danger>
-                      放弃提交
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </Card>
-          </Content>
-          <Sider theme="light" className={style.sider}>
-            {recordsByPersonId.length > 0 ? (
-              <TimeLine records={recordsByPersonId}></TimeLine>
-            ) : (
-              <span>暂无休假记录</span>
-            )}
-          </Sider>
-        </Layout>
-      </Layout>
+      <Card>{render()}</Card>
     </>
   );
 };
