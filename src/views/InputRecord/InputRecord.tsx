@@ -59,6 +59,7 @@ const App: React.FC = () => {
   const formatPeopleInfo = (
     arr: DivisionInter[] | PersonInfoInter[]
   ): Option[] | any => {
+    if (arr.length < 1) return
     return arr.map((data: DivisionInter | PersonInfoInter) => {
       if (!(data as any).people)
         return { value: data.id as number, label: data.name as string };
