@@ -17,7 +17,9 @@ import {
 import { Card, Button, InputNumber, Popconfirm } from "antd";
 import { RecordInter, PhaseInter } from "../../interface/RecordInterface";
 import { App as globalAntd } from "antd";
+import { PlusOutlined } from '@ant-design/icons';
 import Phase from "../Phase/Phase";
+import style from './record.module.scss'
 import axios from "axios";
 
 const App: React.FC = () => {
@@ -131,6 +133,7 @@ const App: React.FC = () => {
   };
 
   const render = () => {
+
     if (recordStatus === "default") {
       if (currentPersonId) {
         return <span onClick={addRecord}>+添加休假记录</span>;
@@ -140,6 +143,9 @@ const App: React.FC = () => {
     } else {
       return (
         <div>
+          <p className={style.title}>
+            {recordStatus === 'add' ? <span>添加休假记录</span> : <span>编辑休假记录</span>}
+          </p>
           {tmpPhaseGroup.map((phase, index) => {
             return (
               <Phase
@@ -154,7 +160,7 @@ const App: React.FC = () => {
             );
           })}
           {showAdding ? (
-            <div onClick={showPhaseForm}>+</div>
+            <Button type="primary" onClick={showPhaseForm} style={{marginTop: "1vh"}} shape="circle" icon={<PlusOutlined />} />
           ) : (
             <Phase
               initialStatus="add"
@@ -164,20 +170,22 @@ const App: React.FC = () => {
               }}
             ></Phase>
           )}
-          <p>休假天数: {vacationLength}天</p>
-          <span>
-            减免假期天数：
-            <InputNumber
-              min={0}
-              max={vacationLength}
-              onChange={onDiscountChange}
-              defaultValue={0}
-            ></InputNumber>
-            天
-          </span>
-          <p>实际扣除天数: {spent}天</p>
+          <div className={style["check-area"]}>
+            <p>休假天数: {vacationLength}天</p>
+            <span>
+              减免假期天数：
+              <InputNumber
+                min={0}
+                max={vacationLength}
+                onChange={onDiscountChange}
+                defaultValue={0}
+              ></InputNumber>
+              天
+            </span>
+            <p>实际扣除天数: {spent}天</p>
+          </div>
 
-          <div>
+          <div className={style["btn-area"]}>
             {recordStatus === "add" ? (
               <>
                 <Button type="primary" onClick={submitRecord}>
@@ -222,7 +230,9 @@ const App: React.FC = () => {
   };
   return (
     <>
-      <Card>{render()}</Card>
+      <Card>
+        {render()}
+      </Card>
     </>
   );
 };

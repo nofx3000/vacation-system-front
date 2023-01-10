@@ -19,7 +19,7 @@ import {
   selectCurrentPersonId,
   selectTmpPhaseGroup,
 } from "../../store/slices/recordSlice";
-import { Cascader, Layout } from "antd";
+import { Cascader, Layout, Tag  } from "antd";
 import { PersonInfoInter } from "../../interface/PeopleInterface";
 import { DivisionInter } from "../../interface/DivisionInterface";
 import { PhaseInter, RecordInter } from "../../interface/RecordInterface";
@@ -104,14 +104,14 @@ const App: React.FC = () => {
             onChange={onPersonChange}
             placeholder="Please select"
           />
-          <span>
+          <Tag >
             今年应休天数：
             {currentPeronInfo?.total_holiday
               ? currentPeronInfo?.total_holiday
               : ""}
             天
-          </span>
-          <span>已休假天数：{calcSpentVacation(recordsByPersonId)}天</span>
+          </Tag >
+          <Tag >已休假天数：{calcSpentVacation(recordsByPersonId)}天</Tag >
         </Header>
         <Layout>
           <Content className={style.content}>

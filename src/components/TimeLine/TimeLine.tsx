@@ -9,8 +9,10 @@ import {
   changeRecordStatus,
   getRecordsByPersonIdAsync,
   selectCurrentPersonId,
+  setShowAdding
 } from "../../store/slices/recordSlice";
 import axios from "axios";
+import style from './timeline.module.scss'
 
 interface TimeLineProps {
   records?: RecordInter[];
@@ -41,6 +43,7 @@ const App: React.FC<TimeLineProps> = (props: TimeLineProps) => {
   const handleEditRecord = (id: number) => {
     dispatch(getRecordByIdAsync(id));
     dispatch(changeRecordStatus("edit"));
+    dispatch(setShowAdding(true))
   };
 
   const handleDeleteRecord = async (id: number) => {
@@ -59,9 +62,9 @@ const App: React.FC<TimeLineProps> = (props: TimeLineProps) => {
     if (record.phase) {
       return (
         <Timeline.Item color="green" key={record.id}>
-          <p>
             第{index + 1}次休假{" "}
-            <Button
+            <div className={style["btn-area"]}>
+              <Button
               size="small"
               type="primary"
               onClick={() => {
@@ -84,7 +87,8 @@ const App: React.FC<TimeLineProps> = (props: TimeLineProps) => {
                 删除
               </Button>
             </Popconfirm>
-          </p>
+            
+          </div>
           {record.phase.map((item) => {
             return (
               <div key={item.id}>

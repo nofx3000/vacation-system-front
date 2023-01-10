@@ -19,6 +19,8 @@ import {
   DatePicker,
   Popconfirm,
 } from "antd";
+import style from './phase.module.scss'
+import dateformat from 'dateformat'
 const { RangePicker } = DatePicker;
 
 type PhaseStatusType = "default" | "add" | "edit";
@@ -39,7 +41,6 @@ const App: React.FC<PhaseProps> = (props) => {
   const record_id: number | undefined = useSelector(selectRecordId);
 
   const formatPhase = (phase: any) => {
-    console.log("}}}}}}}}}", phase);
     phase["start_at"] = phase.time[0]["$d"];
     phase["end_at"] = phase.time[1]["$d"];
     delete phase.time;
@@ -49,6 +50,7 @@ const App: React.FC<PhaseProps> = (props) => {
   const onFinish = (values: any) => {
     if (phaseStatus === "add") {
       const formatedPhase: PhaseInter = formatPhase(values);
+      // 存储的日期形式是Date对象， valueOf得到时间戳（number）
       dispatch(addTmpPhaseGroup(formatedPhase));
       props.showAddingButton();
     } else if (phaseStatus === "edit") {
@@ -62,6 +64,16 @@ const App: React.FC<PhaseProps> = (props) => {
         })
       );
     }
+  };
+
+  const formatDate = (date: any) => {
+    if (typeof date === 'number') {
+      // 添加或修改完的是时间戳number
+      // return new Date(date).toString()
+      return dateformat(new Date(date), "yyyy-mm-dd")
+      // return moment(new Date(date), "YYYY-MM-DD")
+    }
+    return date.slice(0, 10);
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -99,21 +111,51 @@ const App: React.FC<PhaseProps> = (props) => {
       let phaseData = props.phaseData as PhaseInter;
       return (
         <div>
-          <p>{phaseData.destination}</p>
-          <p>{phaseData.address}</p>
-          <p>{(phaseData["start_at"] as Date).valueOf()}</p>
-          <p>{(phaseData["end_at"] as Date).valueOf()}</p>
-          <Button
-            type="primary"
-            onClick={() => {
-              handleEditPhase(phaseData.id as number);
-            }}
-          >
-            修改
-          </Button>
-          <Button type="primary" onClick={handleDeletePhase} danger>
-            删除
-          </Button>
+          <Row>
+            <Col span={12}>
+              {formatDate((phaseData["start_at"] as Date).valueOf())} —— {formatDate((phaseData["end_at"] as Date).valueOf())}
+            </Col>
+            <Col span={12}>
+              {phaseData.destination}：{phaseData.address}
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}>
+              交通工具：{phaseData.traffic}
+            </Col>
+            <Col span={12}>
+              电话：{phaseData.tel}
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}>
+              紧急联系人电话： {phaseData.emergency_tel}
+            </Col>
+            <Col span={12}>
+              {/* 共{}天 */}
+            </Col>
+          </Row>
+          <div className={style["btn-area"]}>
+            <Button
+              type="primary"
+              onClick={() => {
+                handleEditPhase(phaseData.id as number);
+              }}
+            >
+              修改
+            </Button>
+            <Popconfirm
+              placement="top"
+              title="删除日程"
+              description="删除后数据无法恢复"
+              onConfirm={handleEditAbandon}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="primary" onClick={handleDeletePhase} danger>
+                删除
+              </Button></Popconfirm>
+          </div>
         </div>
       );
     } else {
@@ -175,43 +217,51 @@ const App: React.FC<PhaseProps> = (props) => {
               </Form.Item>
             </Col>
           </Row>
-          {phaseStatus === "add" ? (
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                添加
-              </Button>
-              <Popconfirm
-                placement="top"
-                title="放弃添加休假日程"
-                description="放弃后数据将不会被保存"
-                onConfirm={handleAddAbandon}
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button type="primary" danger>
-                  放弃
-                </Button>
-              </Popconfirm>
-            </Form.Item>
-          ) : (
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit">
-                修改
-              </Button>
-              <Popconfirm
-                placement="top"
-                title="放弃添加休假日程"
-                description="放弃后数据将不会被保存"
-                onConfirm={handleEditAbandon}
-                okText="Yes"
-                cancelText="No"
-              >
-                <Button type="primary" danger>
-                  放弃
-                </Button>
-              </Popconfirm>
-            </Form.Item>
-          )}
+          <Row>
+            <Col span={12}></Col>
+            <Col span={12}>
+              <div className={style["btn-area"]}>
+                {phaseStatus === "add" ? (
+                  <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                    <Button type="primary" htmlType="submit">
+                      添加
+                    </Button>
+                    <Popconfirm
+                      placement="top"
+                      title="放弃添加休假日程"
+                      description="放弃后数据将不会被保存"
+                      onConfirm={handleAddAbandon}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button type="primary" danger>
+                        放弃
+                      </Button>
+                    </Popconfirm>
+                  </Form.Item>
+                ) : (
+                  <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                    <Button type="primary" htmlType="submit">
+                      修改
+                    </Button>
+                    <Popconfirm
+                      placement="top"
+                      title="放弃添加休假日程"
+                      description="放弃后数据将不会被保存"
+                      onConfirm={handleEditAbandon}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button type="primary" danger>
+                        放弃
+                      </Button>
+                    </Popconfirm>
+                  </Form.Item>
+                )}
+              </div>
+            </Col>
+          </Row>
+
         </Form>
       );
     }
@@ -220,7 +270,7 @@ const App: React.FC<PhaseProps> = (props) => {
   return phaseStatus === "default" && (props.phaseData as any)["delete_tag"] ? (
     <></>
   ) : (
-    <Card>{render(phaseStatus)}</Card>
+    <Card className={style["phase-card"]}>{render(phaseStatus)}</Card>
   );
 };
 
