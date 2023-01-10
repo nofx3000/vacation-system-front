@@ -15,4 +15,5 @@ export interface PhaseInter {
   start_at?: Date;
   end_at?: Date;
   record_id?: number;
+  delete_tag?: boolean;
 }

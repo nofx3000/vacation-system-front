@@ -1,14 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../store/store";
-import {} from "../../store/slices/recordSlice";
-import { RecordInter, PhaseInter } from "../../interface/RecordInterface";
+import { PhaseInter } from "../../interface/RecordInterface";
 import {
   addTmpPhaseGroup,
   delTmpPhaseById,
   editTmpPhaseById,
+  selectRecordId,
+  setDeleteTag,
 } from "../../store/slices/recordSlice";
-import { Button, Form, Input, Card, Col, Row, DatePicker } from "antd";
+import {
+  Button,
+  Form,
+  Input,
+  Card,
+  Col,
+  Row,
+  DatePicker,
+  Popconfirm,
+} from "antd";
 const { RangePicker } = DatePicker;
 
 type PhaseStatusType = "default" | "add" | "edit";
@@ -25,8 +35,11 @@ const App: React.FC<PhaseProps> = (props) => {
   const [phaseStatus, setPhaseStatus] = useState<PhaseStatusType>(
     props.initialStatus
   );
+  const [phaseId, setPhaseId] = useState<number | undefined>(undefined);
+  const record_id: number | undefined = useSelector(selectRecordId);
 
   const formatPhase = (phase: any) => {
+    console.log("}}}}}}}}}", phase);
     phase["start_at"] = phase.time[0]["$d"];
     phase["end_at"] = phase.time[1]["$d"];
     delete phase.time;
@@ -34,11 +47,14 @@ const App: React.FC<PhaseProps> = (props) => {
   };
 
   const onFinish = (values: any) => {
-    const formatedPhase: PhaseInter = formatPhase(values);
     if (phaseStatus === "add") {
+      const formatedPhase: PhaseInter = formatPhase(values);
       dispatch(addTmpPhaseGroup(formatedPhase));
       props.showAddingButton();
     } else if (phaseStatus === "edit") {
+      values.id = phaseId;
+      values["record_id"] = record_id;
+      const formatedPhase: PhaseInter = formatPhase(values);
       dispatch(
         editTmpPhaseById({
           index: props.indexInTmpGroup,
@@ -56,13 +72,22 @@ const App: React.FC<PhaseProps> = (props) => {
     props.showAddingButton();
   };
 
-  const handleEditPhase = () => {
+  const handleEditPhase = (id: number) => {
     setPhaseStatus("edit");
+    setPhaseId(id);
   };
 
   const handleDeletePhase = () => {
-    const id = props.indexInTmpGroup;
-    dispatch(delTmpPhaseById(id));
+    const index = props.indexInTmpGroup;
+    // 添加时删除直接从tmpPhaseGroup中删除
+    if (phaseStatus === "add") {
+      dispatch(delTmpPhaseById(index));
+      return;
+    }
+    // 修改时删除把对应index的tmpPhase的delete_tag属性设成true
+    if (phaseStatus === "edit") {
+      dispatch(setDeleteTag(index));
+    }
   };
 
   const handleEditAbandon = () => {
@@ -78,7 +103,12 @@ const App: React.FC<PhaseProps> = (props) => {
           <p>{phaseData.address}</p>
           <p>{(phaseData["start_at"] as Date).valueOf()}</p>
           <p>{(phaseData["end_at"] as Date).valueOf()}</p>
-          <Button type="primary" onClick={handleEditPhase}>
+          <Button
+            type="primary"
+            onClick={() => {
+              handleEditPhase(phaseData.id as number);
+            }}
+          >
             修改
           </Button>
           <Button type="primary" onClick={handleDeletePhase} danger>
@@ -150,18 +180,36 @@ const App: React.FC<PhaseProps> = (props) => {
               <Button type="primary" htmlType="submit">
                 添加
               </Button>
-              <Button type="primary" danger onClick={handleAddAbandon}>
-                放弃
-              </Button>
+              <Popconfirm
+                placement="top"
+                title="放弃添加休假日程"
+                description="放弃后数据将不会被保存"
+                onConfirm={handleAddAbandon}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button type="primary" danger>
+                  放弃
+                </Button>
+              </Popconfirm>
             </Form.Item>
           ) : (
             <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
               <Button type="primary" htmlType="submit">
                 修改
               </Button>
-              <Button type="primary" danger onClick={handleEditAbandon}>
-                放弃
-              </Button>
+              <Popconfirm
+                placement="top"
+                title="放弃添加休假日程"
+                description="放弃后数据将不会被保存"
+                onConfirm={handleEditAbandon}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button type="primary" danger>
+                  放弃
+                </Button>
+              </Popconfirm>
             </Form.Item>
           )}
         </Form>

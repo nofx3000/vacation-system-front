@@ -11,10 +11,11 @@ import {
   resetTmpPhaseById,
   setShowAdding,
   selectShowAdding,
+  selectRecordId,
+  resetRecordId,
 } from "../../store/slices/recordSlice";
-import { Card, Button, InputNumber } from "antd";
+import { Card, Button, InputNumber, Popconfirm } from "antd";
 import { RecordInter, PhaseInter } from "../../interface/RecordInterface";
-// import TimeLine from "../TimeLine/TimeLine";
 import { App as globalAntd } from "antd";
 import Phase from "../Phase/Phase";
 import axios from "axios";
@@ -30,6 +31,7 @@ const App: React.FC = () => {
   const currentPersonId: number | undefined = useSelector(
     selectCurrentPersonId
   );
+  const record_id: number | undefined = useSelector(selectRecordId);
   const [discount, setDiscount] = useState<number | null>(0);
   const [vacationLength, setVacationLength] = useState(0);
   const [spent, setSpent] = useState(0);
@@ -51,9 +53,9 @@ const App: React.FC = () => {
     let total: number = 0;
     phaseGroup.forEach((phase) => {
       duration =
-        (phase["end_at"] as Date).valueOf() -
-        (phase["start_at"] as Date).valueOf();
-      duration = duration / 1000 / 60 / 60 / 24 + 1;
+        new Date(phase["end_at"] as Date).valueOf() -
+        new Date(phase["start_at"] as Date).valueOf();
+      duration = Math.floor(duration / 1000 / 60 / 60 / 24) + 1;
       total += duration;
       setVacationLength(total);
     });
@@ -61,7 +63,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     setVacationLength(0);
-    console.log("phase group changed");
     calcVacationLength(tmpPhaseGroup);
   }, [tmpPhaseGroup]);
 
@@ -78,7 +79,7 @@ const App: React.FC = () => {
     console.log(tmpPhaseGroup);
   };
 
-  const submitRecord = async () => {
+  const submitAddRecord = async () => {
     if (tmpPhaseGroup.length < 1) {
       message.error("请添加日程");
       return;
@@ -98,6 +99,35 @@ const App: React.FC = () => {
     dispatch(changeRecordStatus("default"));
     dispatch(resetTmpPhaseById());
     message.success("添加成功");
+  };
+
+  const submitEditRecord = async () => {
+    if (tmpPhaseGroup.length < 1) {
+      message.error("请添加日程");
+      return;
+    }
+    const data: RecordInter = {
+      person_id: currentPersonId as number,
+      discount: discount as number,
+      phase: tmpPhaseGroup,
+    };
+    const res = await axios.put(`/record/${record_id as number}`, data);
+    if (res.data)
+      if (res.data.message) {
+        message.error(res.data.message);
+      }
+    dispatch(getRecordsByPersonIdAsync(currentPersonId as number));
+    dispatch(setShowAdding(true));
+    dispatch(changeRecordStatus("default"));
+    dispatch(resetTmpPhaseById());
+    dispatch(resetRecordId());
+    message.success("修改成功");
+  };
+
+  const submitAddRecordAbandon = () => {
+    dispatch(setShowAdding(true));
+    dispatch(changeRecordStatus("default"));
+    dispatch(resetTmpPhaseById());
   };
 
   const render = () => {
@@ -146,13 +176,45 @@ const App: React.FC = () => {
             天
           </span>
           <p>实际扣除天数: {spent}天</p>
+
           <div>
-            <Button type="primary" onClick={submitRecord}>
-              提交休假记录
-            </Button>
-            <Button type="primary" danger>
-              放弃提交
-            </Button>
+            {recordStatus === "add" ? (
+              <>
+                <Button type="primary" onClick={submitAddRecord}>
+                  提交休假记录
+                </Button>
+                <Popconfirm
+                  placement="top"
+                  title="放弃提交休假记录"
+                  description="放弃后数据将不会被保存"
+                  onConfirm={submitAddRecordAbandon}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button type="primary" danger>
+                    放弃提交
+                  </Button>
+                </Popconfirm>
+              </>
+            ) : (
+              <>
+                <Button type="primary" onClick={submitEditRecord}>
+                  提交休假记录
+                </Button>
+                <Popconfirm
+                  placement="top"
+                  title="放弃提交休假记录"
+                  description="放弃后数据将不会被保存"
+                  onConfirm={submitAddRecordAbandon}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button type="primary" danger>
+                    放弃提交
+                  </Button>
+                </Popconfirm>
+              </>
+            )}
           </div>
         </div>
       );
