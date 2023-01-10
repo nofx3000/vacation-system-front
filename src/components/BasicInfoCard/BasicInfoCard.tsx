@@ -114,7 +114,6 @@ const App: React.FC<CardProps> = (props: CardProps) => {
           <p>夫妻异地：{personinfo.not_with_partner ? "是" : "否"}</p>
           <p>父母异地：{personinfo.not_with_parent ? "是" : "否"}</p>
           <p>应休天数：{personinfo.total_holiday}</p>
-          <p>已休天数：{personinfo.spent_holiday}</p>
           <p>
             备注：
             {personinfo.comment ? personinfo.comment : "无"}
@@ -239,14 +238,6 @@ const App: React.FC<CardProps> = (props: CardProps) => {
               label="本年假期"
               name="total_holiday"
               rules={[{ required: true, message: "请输入本年假期天数" }]}
-              className={style["form-item"]}
-            >
-              <InputNumber />
-            </Form.Item>
-            <Form.Item
-              label="已休假期"
-              name="spent_holiday"
-              rules={[{ required: true, message: "请输入已休假期天数" }]}
               className={style["form-item"]}
             >
               <InputNumber />

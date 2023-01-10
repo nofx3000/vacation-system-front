@@ -2,13 +2,14 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState, AppDispatch, AppThunk } from "../store";
 import axios from "axios";
 import { RecordInter, PhaseInter } from "../../interface/RecordInterface";
-
+import { PersonInfoInter } from "../../interface/PeopleInterface";
 export interface RecordState {
   recordsByPersonId: RecordInter[];
   recordStatus: "default" | "add" | "edit";
   phaseStatus: "default" | "add" | "edit";
   tmpPhaseGroup: PhaseInter[];
   currentPersonId?: number;
+  currentPersonInfo?: PersonInfoInter;
   showAdding: boolean;
   recordId?: number;
 }
@@ -34,6 +35,15 @@ export const getRecordsByPersonIdAsync = createAsyncThunk(
   "record/getRecordsByPersonId",
   async (id: number) => {
     const res = await axios.get(`/record/person/${id}`);
+    // The value we return becomes the `fulfilled` action payload
+    return res.data.data;
+  }
+);
+
+export const getPersonInfoAsync = createAsyncThunk(
+  "record/getPersonInfo",
+  async (id: number) => {
+    const res = await axios.get(`/people/${id}`);
     // The value we return becomes the `fulfilled` action payload
     return res.data.data;
   }
@@ -113,6 +123,13 @@ export const RecordSlice = createSlice({
       console.log("rejected");
       throw Error("getting recordList failed");
     });
+    builder.addCase(getPersonInfoAsync.fulfilled, (state, action) => {
+      state.currentPersonInfo = action.payload;
+    });
+    builder.addCase(getPersonInfoAsync.rejected, (state, action) => {
+      console.log("rejected");
+      throw Error("getting personInfo failed");
+    });
     builder.addCase(getRecordByIdAsync.fulfilled, (state, action) => {
       console.log(action.payload);
       let phases: PhaseInter[] = [];
@@ -162,6 +179,9 @@ export const selectTmpPhaseGroup = (state: RootState) =>
 
 export const selectCurrentPersonId = (state: RootState) =>
   state.recordReducer.currentPersonId;
+
+export const selectCurrentPersonInfo = (state: RootState) =>
+  state.recordReducer.currentPersonInfo;
 
 export const selectShowAdding = (state: RootState) =>
   state.recordReducer.showAdding;

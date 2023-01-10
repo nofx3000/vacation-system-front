@@ -3,10 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../store/store";
 import { Timeline, Tag, Button, Popconfirm } from "antd";
 import { RecordInter } from "../../interface/RecordInterface";
+import { App as globalAntd } from "antd";
 import {
   getRecordByIdAsync,
   changeRecordStatus,
+  getRecordsByPersonIdAsync,
+  selectCurrentPersonId,
 } from "../../store/slices/recordSlice";
+import axios from "axios";
 
 interface TimeLineProps {
   records?: RecordInter[];
@@ -14,7 +18,9 @@ interface TimeLineProps {
 
 const App: React.FC<TimeLineProps> = (props: TimeLineProps) => {
   const dispatch = useDispatch<AppDispatch>();
-
+  const staticFunction = globalAntd.useApp();
+  const message = staticFunction.message;
+  const currentPersonId = useSelector(selectCurrentPersonId);
   const formatDate = (date: any) => {
     return date.slice(0, 10);
   };
@@ -37,6 +43,15 @@ const App: React.FC<TimeLineProps> = (props: TimeLineProps) => {
     dispatch(changeRecordStatus("edit"));
   };
 
+  const handleDeleteRecord = async (id: number) => {
+    const res = await axios.delete(`/record/${id}`);
+    if (res.data.message) {
+      message.error(res.data.message);
+    }
+    dispatch(getRecordsByPersonIdAsync(currentPersonId as number));
+    message.success("删除成功");
+  };
+
   const renderTimelineItem = (
     record: RecordInter,
     index: number
@@ -55,9 +70,20 @@ const App: React.FC<TimeLineProps> = (props: TimeLineProps) => {
             >
               修改
             </Button>
-            <Button size="small" type="primary" danger>
-              删除
-            </Button>
+            <Popconfirm
+              placement="top"
+              title="删除休假记录"
+              description="记录删除后无法找回"
+              onConfirm={() => {
+                handleDeleteRecord(record.id as number);
+              }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button size="small" type="primary" danger>
+                删除
+              </Button>
+            </Popconfirm>
           </p>
           {record.phase.map((item) => {
             return (

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../store/store";
 import {
@@ -14,11 +14,15 @@ import {
   resetRecordsByPersonId,
   setShowAdding,
   resetCurrentPerson,
+  getPersonInfoAsync,
+  selectCurrentPersonInfo,
+  selectCurrentPersonId,
+  selectTmpPhaseGroup,
 } from "../../store/slices/recordSlice";
 import { Cascader, Layout } from "antd";
 import { PersonInfoInter } from "../../interface/PeopleInterface";
 import { DivisionInter } from "../../interface/DivisionInterface";
-import { RecordInter } from "../../interface/RecordInterface";
+import { PhaseInter, RecordInter } from "../../interface/RecordInterface";
 import TimeLine from "../../components/TimeLine/TimeLine";
 import style from "./input-record.module.scss";
 import Record from "../../components/Record/Record";
@@ -34,8 +38,9 @@ const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const peopleinfo: PersonInfoInter[] = useSelector(selectPeopleInfoByDivison);
   const recordsByPersonId: RecordInter[] = useSelector(selectRecordsByPersonId);
-
-  const onPersonChange = (value: any) => {
+  const currentPersonId = useSelector(selectCurrentPersonId);
+  const currentPeronInfo = useSelector(selectCurrentPersonInfo);
+  const onPersonChange = async (value: any) => {
     if (!value) {
       dispatch(resetTmpPhaseById());
       dispatch(setShowAdding(true));
@@ -56,10 +61,15 @@ const App: React.FC = () => {
     dispatch(getPeopleInfoListAsync());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (currentPersonId) {
+      dispatch(getPersonInfoAsync(currentPersonId));
+    }
+  }, [currentPersonId]);
   const formatPeopleInfo = (
     arr: DivisionInter[] | PersonInfoInter[]
   ): Option[] | any => {
-    if (arr.length < 1) return
+    if (arr.length < 1) return;
     return arr.map((data: DivisionInter | PersonInfoInter) => {
       if (!(data as any).people)
         return { value: data.id as number, label: data.name as string };
@@ -74,6 +84,16 @@ const App: React.FC = () => {
     });
   };
 
+  const calcSpentVacation = (records: RecordInter[]) => {
+    let spent = 0;
+    records.forEach((record: RecordInter) => {
+      console.log(record.duration);
+      console.log(record.discount);
+      spent += (record.duration as number) - (record.discount as number);
+    });
+    return spent;
+  };
+
   return (
     <>
       <Layout>
@@ -84,6 +104,14 @@ const App: React.FC = () => {
             onChange={onPersonChange}
             placeholder="Please select"
           />
+          <span>
+            今年应休天数：
+            {currentPeronInfo?.total_holiday
+              ? currentPeronInfo?.total_holiday
+              : ""}
+            天
+          </span>
+          <span>已休假天数：{calcSpentVacation(recordsByPersonId)}天</span>
         </Header>
         <Layout>
           <Content className={style.content}>

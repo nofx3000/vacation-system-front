@@ -85,7 +85,7 @@ const App: React.FC<PhaseProps> = (props) => {
       return;
     }
     // 修改时删除把对应index的tmpPhase的delete_tag属性设成true
-    if (phaseStatus === "edit") {
+    if (phaseStatus === "default") {
       dispatch(setDeleteTag(index));
     }
   };
@@ -216,8 +216,12 @@ const App: React.FC<PhaseProps> = (props) => {
       );
     }
   };
-
-  return <Card>{render(phaseStatus)}</Card>;
+  // 如果default状态下有delete_tag就不渲染
+  return phaseStatus === "default" && (props.phaseData as any)["delete_tag"] ? (
+    <></>
+  ) : (
+    <Card>{render(phaseStatus)}</Card>
+  );
 };
 
 export default App;

@@ -4,7 +4,6 @@ export interface PersonInfoInter {
   catagory?: number;
   work_age?: number;
   total_holiday?: number;
-  spent_holiday?: number;
   division_id?: number;
   married?: boolean;
   not_with_parent?: boolean;

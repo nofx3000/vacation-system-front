@@ -1,6 +1,7 @@
 export interface RecordInter {
   id?: number;
   discount?: number;
+  duration?: number;
   person_id: number;
   phase?: PhaseInter[];
 }

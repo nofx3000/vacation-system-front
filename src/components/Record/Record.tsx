@@ -56,7 +56,8 @@ const App: React.FC = () => {
         new Date(phase["end_at"] as Date).valueOf() -
         new Date(phase["start_at"] as Date).valueOf();
       duration = Math.floor(duration / 1000 / 60 / 60 / 24) + 1;
-      total += duration;
+      // 不计算带有delete_tage的休假天数
+      total += phase["delete_tag"] ? 0 : duration;
       setVacationLength(total);
     });
   };
@@ -79,8 +80,14 @@ const App: React.FC = () => {
     console.log(tmpPhaseGroup);
   };
 
-  const submitAddRecord = async () => {
-    if (tmpPhaseGroup.length < 1) {
+  const submitRecord = async () => {
+    // 遍历tmpPhaseGroup，计算不算带delete_tag的phase数量
+    let count = 0;
+    for (let i = 0; i < tmpPhaseGroup.length; i++) {
+      if (tmpPhaseGroup[i]["delete_tag"]) continue;
+      count++;
+    }
+    if (count < 1) {
       message.error("请添加日程");
       return;
     }
@@ -88,39 +95,32 @@ const App: React.FC = () => {
       person_id: currentPersonId as number,
       discount: discount as number,
       phase: tmpPhaseGroup,
+      duration: vacationLength,
     };
-    const res = await axios.post("/record/add", data);
-    console.log(res.data);
+    let res: any;
+    if (recordStatus === "add") {
+      res = await axios.post("/record/add", data);
+    }
+    if (recordStatus === "edit") {
+      res = await axios.put(`/record/${record_id as number}`, data);
+    }
+    // 修改当前休假人的spent_vacation
+    // await axios.patch(`/people/${currentPersonId}/${currentPersonInfo.spent_holiday + }`)
     if (res.data.message) {
       message.error(res.data.message);
     }
+    // 刷新Timeline
     dispatch(getRecordsByPersonIdAsync(currentPersonId as number));
+    // 关闭表单，显示添加日程
     dispatch(setShowAdding(true));
+    // 关闭添加或编辑，显示添加休假记录
     dispatch(changeRecordStatus("default"));
+    // 重置tmpPhaseGroup
     dispatch(resetTmpPhaseById());
-    message.success("添加成功");
-  };
-
-  const submitEditRecord = async () => {
-    if (tmpPhaseGroup.length < 1) {
-      message.error("请添加日程");
-      return;
+    if (recordStatus === "edit") {
+      // 重置recordId为undefined
+      dispatch(resetRecordId());
     }
-    const data: RecordInter = {
-      person_id: currentPersonId as number,
-      discount: discount as number,
-      phase: tmpPhaseGroup,
-    };
-    const res = await axios.put(`/record/${record_id as number}`, data);
-    if (res.data)
-      if (res.data.message) {
-        message.error(res.data.message);
-      }
-    dispatch(getRecordsByPersonIdAsync(currentPersonId as number));
-    dispatch(setShowAdding(true));
-    dispatch(changeRecordStatus("default"));
-    dispatch(resetTmpPhaseById());
-    dispatch(resetRecordId());
     message.success("修改成功");
   };
 
@@ -180,7 +180,7 @@ const App: React.FC = () => {
           <div>
             {recordStatus === "add" ? (
               <>
-                <Button type="primary" onClick={submitAddRecord}>
+                <Button type="primary" onClick={submitRecord}>
                   提交休假记录
                 </Button>
                 <Popconfirm
@@ -198,7 +198,7 @@ const App: React.FC = () => {
               </>
             ) : (
               <>
-                <Button type="primary" onClick={submitEditRecord}>
+                <Button type="primary" onClick={submitRecord}>
                   提交休假记录
                 </Button>
                 <Popconfirm
