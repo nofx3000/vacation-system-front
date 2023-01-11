@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { Progress } from "antd";
+import style from "./progress.module.scss";
 
 interface ProgressProps {
   percent: number;
@@ -10,10 +11,12 @@ const App: React.FC<ProgressProps> = (props) => {
   const { percent, children } = props;
   return (
     <>
-      <p>{children}</p>
-      <Progress percent={percent} />
-      {/* <Progress percent={50} status="active" /> */}
-      {/* <Progress percent={70} status="exception" /> */}
+      <p className={style.info}>{children}</p>
+      <Progress
+        percent={percent}
+        status="normal"
+        strokeColor={{ "0%": "#108ee9", "100%": "#87d068" }}
+      ></Progress>
     </>
   );
 };

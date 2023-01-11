@@ -9,6 +9,7 @@ import Index from "../views/Index/Index";
 import BasicInfo from "../views/BasicInfo/BasicInfo";
 import InputRecord from "../views/InputRecord/InputRecord";
 import Home from "../views/Home/Home";
+import CheckInfo from "../views/CheckInfo/CheckInfo";
 
 const router = createBrowserRouter([
   {
@@ -41,7 +42,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/check-info",
-        element: <div>check-info</div>,
+        element: <CheckInfo></CheckInfo>,
       },
     ],
   },
