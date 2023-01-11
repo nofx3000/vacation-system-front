@@ -17,9 +17,9 @@ import {
 import { Card, Button, InputNumber, Popconfirm } from "antd";
 import { RecordInter, PhaseInter } from "../../interface/RecordInterface";
 import { App as globalAntd } from "antd";
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from "@ant-design/icons";
 import Phase from "../Phase/Phase";
-import style from './record.module.scss'
+import style from "./record.module.scss";
 import axios from "axios";
 
 const App: React.FC = () => {
@@ -28,11 +28,15 @@ const App: React.FC = () => {
   const message = staticFunction.message;
   const recordStatus: "default" | "add" | "edit" =
     useSelector(selectRecordStatus);
+  // 控制是否显示添加日程
   const showAdding: boolean = useSelector(selectShowAdding);
+  // 当前日程信息列表
   const tmpPhaseGroup: PhaseInter[] = useSelector(selectTmpPhaseGroup);
+  // 当前选择的休假人id
   const currentPersonId: number | undefined = useSelector(
     selectCurrentPersonId
   );
+  // 当前编辑中的record id
   const record_id: number | undefined = useSelector(selectRecordId);
   const [discount, setDiscount] = useState<number | null>(0);
   const [vacationLength, setVacationLength] = useState(0);
@@ -43,13 +47,20 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log();
+  });
+
+  // 获取人员基本信息列表
+  useEffect(() => {
     dispatch(getPeopleInfoListAsync());
   }, [dispatch]);
 
+  // 计算实际扣除假期天数
   useEffect(() => {
     setSpent(vacationLength - (discount as number));
   }, [vacationLength, discount]);
 
+  // 计算休假天数
   const calcVacationLength = (phaseGroup: PhaseInter[]) => {
     let duration: number;
     let total: number = 0;
@@ -64,15 +75,19 @@ const App: React.FC = () => {
     });
   };
 
+  // 休假日程变化时重新计算休假天数
   useEffect(() => {
+    // 清零重新计算
     setVacationLength(0);
     calcVacationLength(tmpPhaseGroup);
   }, [tmpPhaseGroup]);
 
+  // 将Record状态改为添加
   const addRecord = () => {
     dispatch(changeRecordStatus("add"));
   };
 
+  // 当点击添加Phase按钮时：打开添加Phase表单，隐藏添加按钮
   const showPhaseForm = () => {
     if (tmpPhaseGroup.length >= 3) {
       message.error("休假日程不能超过3段");
@@ -82,6 +97,7 @@ const App: React.FC = () => {
     console.log(tmpPhaseGroup);
   };
 
+  // 提交Record表单
   const submitRecord = async () => {
     // 遍历tmpPhaseGroup，计算不算带delete_tag的phase数量
     let count = 0;
@@ -126,6 +142,7 @@ const App: React.FC = () => {
     message.success("修改成功");
   };
 
+  // 放弃新增Record
   const submitAddRecordAbandon = () => {
     dispatch(setShowAdding(true));
     dispatch(changeRecordStatus("default"));
@@ -133,7 +150,6 @@ const App: React.FC = () => {
   };
 
   const render = () => {
-
     if (recordStatus === "default") {
       if (currentPersonId) {
         return <span onClick={addRecord}>+添加休假记录</span>;
@@ -144,7 +160,11 @@ const App: React.FC = () => {
       return (
         <div>
           <p className={style.title}>
-            {recordStatus === 'add' ? <span>添加休假记录</span> : <span>编辑休假记录</span>}
+            {recordStatus === "add" ? (
+              <span>添加休假记录</span>
+            ) : (
+              <span>编辑休假记录</span>
+            )}
           </p>
           {tmpPhaseGroup.map((phase, index) => {
             return (
@@ -160,7 +180,13 @@ const App: React.FC = () => {
             );
           })}
           {showAdding ? (
-            <Button type="primary" onClick={showPhaseForm} style={{marginTop: "1vh"}} shape="circle" icon={<PlusOutlined />} />
+            <Button
+              type="primary"
+              onClick={showPhaseForm}
+              style={{ marginTop: "1vh" }}
+              shape="circle"
+              icon={<PlusOutlined />}
+            />
           ) : (
             <Phase
               initialStatus="add"
@@ -230,9 +256,7 @@ const App: React.FC = () => {
   };
   return (
     <>
-      <Card>
-        {render()}
-      </Card>
+      <Card>{render()}</Card>
     </>
   );
 };

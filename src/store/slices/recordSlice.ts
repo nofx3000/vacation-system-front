@@ -131,14 +131,24 @@ export const RecordSlice = createSlice({
       throw Error("getting personInfo failed");
     });
     builder.addCase(getRecordByIdAsync.fulfilled, (state, action) => {
-      console.log(action.payload);
       let phases: PhaseInter[] = [];
+      const formatPhaseDate = (phases: PhaseInter[]) => {
+        // 后端获取phase数据start_at和end_at格式为string
+        // 按照interface约定应转换为Date对象
+        return phases.map((phase) => {
+          phase.start_at = new Date(phase.start_at as any);
+          phase.end_at = new Date(phase.end_at as any);
+          return phase;
+        });
+      };
       if (action.payload.phase) {
-        phases = action.payload.phase;
+        phases = formatPhaseDate(action.payload.phase);
       }
+      // 如果获取的record数据带有id， 说明已经创建， 则保存为当前recordId
       if (action.payload.id) {
         state.recordId = action.payload.id;
       }
+      // 将获取的日程信息保存至tmpPhaseGroup
       state.tmpPhaseGroup = phases;
       // state.recordsByPersonId = action.payload;
     });

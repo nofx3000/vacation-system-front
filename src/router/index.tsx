@@ -8,6 +8,7 @@ import Login from "../views/Login/Login";
 import Index from "../views/Index/Index";
 import BasicInfo from "../views/BasicInfo/BasicInfo";
 import InputRecord from "../views/InputRecord/InputRecord";
+import Home from "../views/Home/Home";
 
 const router = createBrowserRouter([
   {
@@ -28,7 +29,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/home",
-        element: <div>home</div>,
+        element: <Home />,
       },
       {
         path: "/basic-info",

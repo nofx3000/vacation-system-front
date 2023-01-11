@@ -5,12 +5,14 @@ import userinfoReducer from "./slices/userinfoSlice";
 import menuReducer from "./slices/menuSlice";
 import peopleReducer from "./slices/peopleSlice";
 import recordReducer from "./slices/recordSlice";
+import phaseReducer from "./slices/phaseSlice";
 const store = configureStore({
   reducer: {
     userinfoReducer,
     menuReducer,
     peopleReducer,
     recordReducer,
+    phaseReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

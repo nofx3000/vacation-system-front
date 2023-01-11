@@ -19,8 +19,9 @@ import {
   DatePicker,
   Popconfirm,
 } from "antd";
-import style from './phase.module.scss'
-import dateformat from 'dateformat'
+import style from "./phase.module.scss";
+import dateformat from "dateformat";
+import { start } from "repl";
 const { RangePicker } = DatePicker;
 
 type PhaseStatusType = "default" | "add" | "edit";
@@ -67,10 +68,10 @@ const App: React.FC<PhaseProps> = (props) => {
   };
 
   const formatDate = (date: any) => {
-    if (typeof date === 'number') {
+    if (typeof date === "number") {
       // 添加或修改完的是时间戳number
       // return new Date(date).toString()
-      return dateformat(new Date(date), "yyyy-mm-dd")
+      return dateformat(new Date(date), "yyyy-mm-dd");
       // return moment(new Date(date), "YYYY-MM-DD")
     }
     return date.slice(0, 10);
@@ -106,6 +107,17 @@ const App: React.FC<PhaseProps> = (props) => {
     setPhaseStatus("default");
   };
 
+  const calcDuration = (start_at: number, end_at: number) => {
+    let duration: any;
+    // if (typeof start_at === "string" && typeof end_at === "string") {
+    //   return start_at;
+    // }
+    duration = end_at - start_at;
+    duration = Math.floor(duration / 1000 / 60 / 60 / 24) + 1;
+    // return duration;
+    return duration;
+  };
+
   const render = (phaseStatus: PhaseStatusType) => {
     if (phaseStatus === "default") {
       let phaseData = props.phaseData as PhaseInter;
@@ -113,49 +125,56 @@ const App: React.FC<PhaseProps> = (props) => {
         <div>
           <Row>
             <Col span={12}>
-              {formatDate((phaseData["start_at"] as Date).valueOf())} —— {formatDate((phaseData["end_at"] as Date).valueOf())}
+              {formatDate((phaseData["start_at"] as Date).valueOf())} ——{" "}
+              {formatDate((phaseData["end_at"] as Date).valueOf())}
             </Col>
             <Col span={12}>
-              {phaseData.destination}：{phaseData.address}
+              休假地点：{phaseData.destination}
+              {phaseData.address}
             </Col>
           </Row>
           <Row>
+            <Col span={12}>交通工具：{phaseData.traffic}</Col>
+            <Col span={12}>电话：{phaseData.tel}</Col>
+          </Row>
+          <Row>
+            <Col span={12}>紧急联系人电话： {phaseData.emergency_tel}</Col>
             <Col span={12}>
-              交通工具：{phaseData.traffic}
-            </Col>
-            <Col span={12}>
-              电话：{phaseData.tel}
+              共
+              {calcDuration(
+                (phaseData["start_at"] as Date).valueOf(),
+                (phaseData["end_at"] as Date).valueOf()
+              )}
+              天
             </Col>
           </Row>
           <Row>
+            <Col span={12}>备注：{phaseData.comment}</Col>
             <Col span={12}>
-              紧急联系人电话： {phaseData.emergency_tel}
-            </Col>
-            <Col span={12}>
-              {/* 共{}天 */}
+              <div className={style["btn-area"]}>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    handleEditPhase(phaseData.id as number);
+                  }}
+                >
+                  修改
+                </Button>
+                <Popconfirm
+                  placement="top"
+                  title="删除日程"
+                  description="删除后数据无法恢复"
+                  onConfirm={handleEditAbandon}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button type="primary" onClick={handleDeletePhase} danger>
+                    删除
+                  </Button>
+                </Popconfirm>
+              </div>
             </Col>
           </Row>
-          <div className={style["btn-area"]}>
-            <Button
-              type="primary"
-              onClick={() => {
-                handleEditPhase(phaseData.id as number);
-              }}
-            >
-              修改
-            </Button>
-            <Popconfirm
-              placement="top"
-              title="删除日程"
-              description="删除后数据无法恢复"
-              onConfirm={handleEditAbandon}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button type="primary" onClick={handleDeletePhase} danger>
-                删除
-              </Button></Popconfirm>
-          </div>
         </div>
       );
     } else {
@@ -218,7 +237,11 @@ const App: React.FC<PhaseProps> = (props) => {
             </Col>
           </Row>
           <Row>
-            <Col span={12}></Col>
+            <Col span={12}>
+              <Form.Item label="备注" name="comment">
+                <Input />
+              </Form.Item>
+            </Col>
             <Col span={12}>
               <div className={style["btn-area"]}>
                 {phaseStatus === "add" ? (
@@ -261,7 +284,6 @@ const App: React.FC<PhaseProps> = (props) => {
               </div>
             </Col>
           </Row>
-
         </Form>
       );
     }
