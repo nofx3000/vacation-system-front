@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import type { RangePickerProps } from "antd/es/date-picker";
+import dayjs from "dayjs";
 import { AppDispatch } from "../../store/store";
 import { PhaseInter } from "../../interface/RecordInterface";
 import {
@@ -21,7 +23,6 @@ import {
 } from "antd";
 import style from "./phase.module.scss";
 import dateformat from "dateformat";
-import { start } from "repl";
 const { RangePicker } = DatePicker;
 
 type PhaseStatusType = "default" | "add" | "edit";
@@ -116,6 +117,13 @@ const App: React.FC<PhaseProps> = (props) => {
     duration = Math.floor(duration / 1000 / 60 / 60 / 24) + 1;
     // return duration;
     return duration;
+  };
+
+  const disabledDate: RangePickerProps["disabledDate"] = (current) => {
+    console.log(dayjs(new Date()));
+
+    // Can not select days before today and today
+    return current && current < dayjs().endOf("day");
   };
 
   const render = (phaseStatus: PhaseStatusType) => {
@@ -215,7 +223,7 @@ const App: React.FC<PhaseProps> = (props) => {
                 name="time"
                 rules={[{ required: true, message: "请选择休假时间!" }]}
               >
-                <RangePicker />
+                <RangePicker disabledDate={disabledDate} />
               </Form.Item>
             </Col>
             <Col span={12}>
