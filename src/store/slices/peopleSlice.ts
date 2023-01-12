@@ -1,25 +1,35 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState, AppDispatch, AppThunk } from "../store";
 import axios from "axios";
-import { PersonInfoInter } from "../../interface/PeopleInterface";
+import {
+  PersonInfoInter,
+  PersonInfoWithEverythingInter,
+} from "../../interface/PeopleInterface";
 import { DivisionInter } from "../../interface/DivisionInterface";
 
 export interface PeopleState {
   peopleInfoByDivison: DivisionInter[];
-}
-
-export interface PeopleState {
-  peopleInfoByDivison: DivisionInter[];
+  peopleInfoWithEverything: PersonInfoWithEverythingInter[];
 }
 
 const initialState: PeopleState = {
   peopleInfoByDivison: [],
+  peopleInfoWithEverything: [],
 };
 
 export const getPeopleInfoListAsync = createAsyncThunk(
   "people/getPeopleInfo",
   async () => {
     const res = await axios.get("/people/");
+    // The value we return becomes the `fulfilled` action payload
+    return res.data.data;
+  }
+);
+
+export const getPeopleInfoWithEverythingAsync = createAsyncThunk(
+  "people/getPeopleInfoWithEverything",
+  async () => {
+    const res = await axios.get("/people/all");
     // The value we return becomes the `fulfilled` action payload
     return res.data.data;
   }
@@ -51,6 +61,19 @@ export const PeopleSlice = createSlice({
       console.log("rejected");
       throw Error("getting peopleInfoList failed");
     });
+    builder.addCase(
+      getPeopleInfoWithEverythingAsync.fulfilled,
+      (state, action) => {
+        state.peopleInfoWithEverything = action.payload;
+      }
+    );
+    builder.addCase(
+      getPeopleInfoWithEverythingAsync.rejected,
+      (state, action) => {
+        console.log("rejected");
+        throw Error("getting peopleInfoWithEverything failed");
+      }
+    );
     builder.addCase(addPersonInfoAsync.fulfilled, (state, action) => {
       console.log("add personinfo success", action.payload);
     });
@@ -63,5 +86,8 @@ export const PeopleSlice = createSlice({
 // !!!CAUTION!!! select中state后面要接reducer名，而不是slice名
 export const selectPeopleInfoByDivison = (state: RootState) =>
   state.peopleReducer.peopleInfoByDivison;
+
+export const selectPeopleInfoWithEverything = (state: RootState) =>
+  state.peopleReducer.peopleInfoWithEverything;
 
 export default PeopleSlice.reducer;

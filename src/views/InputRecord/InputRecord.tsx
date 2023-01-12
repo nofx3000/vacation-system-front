@@ -19,7 +19,7 @@ import {
   selectCurrentPersonId,
   selectTmpPhaseGroup,
 } from "../../store/slices/recordSlice";
-import { Cascader, Layout, Tag  } from "antd";
+import { Cascader, Layout, Tag } from "antd";
 import { PersonInfoInter } from "../../interface/PeopleInterface";
 import { DivisionInter } from "../../interface/DivisionInterface";
 import { PhaseInter, RecordInter } from "../../interface/RecordInterface";
@@ -87,8 +87,6 @@ const App: React.FC = () => {
   const calcSpentVacation = (records: RecordInter[]) => {
     let spent = 0;
     records.forEach((record: RecordInter) => {
-      console.log(record.duration);
-      console.log(record.discount);
       spent += (record.duration as number) - (record.discount as number);
     });
     return spent;
@@ -104,14 +102,14 @@ const App: React.FC = () => {
             onChange={onPersonChange}
             placeholder="Please select"
           />
-          <Tag >
+          <Tag>
             今年应休天数：
             {currentPeronInfo?.total_holiday
               ? currentPeronInfo?.total_holiday
               : ""}
             天
-          </Tag >
-          <Tag >已休假天数：{calcSpentVacation(recordsByPersonId)}天</Tag >
+          </Tag>
+          <Tag>已休假天数：{calcSpentVacation(recordsByPersonId)}天</Tag>
         </Header>
         <Layout>
           <Content className={style.content}>
