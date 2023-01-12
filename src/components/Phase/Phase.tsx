@@ -10,6 +10,7 @@ import {
   editTmpPhaseById,
   selectRecordId,
   setDeleteTag,
+  selectTmpPhaseGroup,
 } from "../../store/slices/recordSlice";
 import {
   Button,
@@ -41,8 +42,10 @@ const App: React.FC<PhaseProps> = (props) => {
   );
   const [phaseId, setPhaseId] = useState<number | undefined>(undefined);
   const record_id: number | undefined = useSelector(selectRecordId);
+  const tmpPhaseGroup = useSelector(selectTmpPhaseGroup);
 
   const formatPhase = (phase: any) => {
+    // console.log(phase.time[0]["$d"] instanceof Date); // true
     phase["start_at"] = phase.time[0]["$d"];
     phase["end_at"] = phase.time[1]["$d"];
     delete phase.time;
@@ -119,11 +122,17 @@ const App: React.FC<PhaseProps> = (props) => {
     return duration;
   };
 
-  const disabledDate: RangePickerProps["disabledDate"] = (current) => {
-    console.log(dayjs(new Date()));
-
-    // Can not select days before today and today
-    return current && current < dayjs().endOf("day");
+  // 返回禁用date之前的日期范围函数
+  const getDisabledDate = () => {
+    // 如果tmpPhaseGroup为空， 则不设置禁用日期
+    if (tmpPhaseGroup.length < 1) {
+      return undefined;
+    }
+    // 将tmpPhaseGroup的最后一个phase的结束日期设置为禁用日期的起点
+    const disabledDate: RangePickerProps["disabledDate"] = (current) => {
+      return current < dayjs(tmpPhaseGroup[tmpPhaseGroup.length - 1].end_at);
+    };
+    return disabledDate;
   };
 
   const render = (phaseStatus: PhaseStatusType) => {
@@ -223,23 +232,42 @@ const App: React.FC<PhaseProps> = (props) => {
                 name="time"
                 rules={[{ required: true, message: "请选择休假时间!" }]}
               >
-                <RangePicker disabledDate={disabledDate} />
+                {/* 如果当前为add，禁用时间为tmpGroup里最后一个phase的结束时间，
+                    如果当前为edit，则不进行禁用
+                */}
+                <RangePicker
+                  disabledDate={
+                    phaseStatus === "add" ? getDisabledDate() : () => false
+                  }
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="联系电话" name="tel">
+              <Form.Item
+                label="联系电话"
+                name="tel"
+                rules={[{ required: true, message: "填写联系电话!" }]}
+              >
                 <Input />
               </Form.Item>
             </Col>
           </Row>
           <Row>
             <Col span={12}>
-              <Form.Item label="交通工具" name="traffic">
+              <Form.Item
+                label="交通工具"
+                name="traffic"
+                rules={[{ required: true, message: "请填写交通工具!" }]}
+              >
                 <Input />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="紧急联系人电话" name="emergency_tel">
+              <Form.Item
+                label="紧急联系人电话"
+                name="emergency_tel"
+                rules={[{ required: true, message: "填写紧急联系人电话!" }]}
+              >
                 <Input />
               </Form.Item>
             </Col>
