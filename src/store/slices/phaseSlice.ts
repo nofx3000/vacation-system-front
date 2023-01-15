@@ -45,6 +45,7 @@ export const PhaseSlice = createSlice({
     });
     builder.addCase(getTodayPhasesAsync.rejected, (state, action) => {
       console.log("rejected");
+      state.todayPhases = [];
       throw Error("todayPhase failed to get");
     });
     builder.addCase(getAllInfoAsync.fulfilled, (state, action) => {
@@ -52,6 +53,7 @@ export const PhaseSlice = createSlice({
     });
     builder.addCase(getAllInfoAsync.rejected, (state, action) => {
       console.log("rejected");
+      state.allInfo = [];
       throw Error("allinfo failed to get");
     });
   },

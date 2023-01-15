@@ -41,6 +41,7 @@ export const MenuSlice = createSlice({
     });
     builder.addCase(getMenuListAsync.rejected, (state, action) => {
       console.log("rejected");
+      state.menuList = [];
       throw Error("token is not authenticated");
     });
   },

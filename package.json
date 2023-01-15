@@ -26,7 +26,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "npm run clean && npm run build-react",
+    "build": "export BUILD_ENV='./serve/build' && npm run clean && npm run build-react",
     "build-react": "react-scripts build",
     "clean": "rimraf ./serve/build",
     "test": "react-scripts test",
