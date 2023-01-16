@@ -8,6 +8,7 @@ export interface RecordState {
   recordStatus: "default" | "add" | "edit";
   phaseStatus: "default" | "add" | "edit";
   tmpPhaseGroup: PhaseInter[];
+  currentDivisionId?: number;
   currentPersonId?: number;
   currentPersonInfo?: PersonInfoInter;
   showAdding: boolean;
@@ -19,6 +20,7 @@ const initialState: RecordState = {
   recordStatus: "default",
   phaseStatus: "default",
   tmpPhaseGroup: [],
+  currentDivisionId: undefined,
   currentPersonId: undefined,
   showAdding: true,
   recordId: undefined,
@@ -65,6 +67,9 @@ export const RecordSlice = createSlice({
   reducers: {
     setCurrentPersonId: (state, action) => {
       state.currentPersonId = action.payload;
+    },
+    setCurrentDivisionId: (state, action) => {
+      state.currentDivisionId = action.payload;
     },
     changeRecordStatus: (state, action: recordStatusActionType) => {
       state.recordStatus = action.payload;
@@ -172,6 +177,7 @@ export const {
   resetCurrentPerson,
   resetRecordId,
   setDeleteTag,
+  setCurrentDivisionId,
 } = RecordSlice.actions;
 
 // !!!CAUTION!!! select中state后面要接reducer名，而不是slice名
@@ -189,6 +195,9 @@ export const selectTmpPhaseGroup = (state: RootState) =>
 
 export const selectCurrentPersonId = (state: RootState) =>
   state.recordReducer.currentPersonId;
+
+export const selectCurrentDivisionId = (state: RootState) =>
+  state.recordReducer.currentDivisionId;
 
 export const selectCurrentPersonInfo = (state: RootState) =>
   state.recordReducer.currentPersonInfo;

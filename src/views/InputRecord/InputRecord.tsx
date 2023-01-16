@@ -17,12 +17,13 @@ import {
   getPersonInfoAsync,
   selectCurrentPersonInfo,
   selectCurrentPersonId,
-  selectTmpPhaseGroup,
+  setCurrentDivisionId,
+  selectCurrentDivisionId,
 } from "../../store/slices/recordSlice";
 import { Cascader, Layout, Tag } from "antd";
 import { PersonInfoInter } from "../../interface/PeopleInterface";
 import { DivisionInter } from "../../interface/DivisionInterface";
-import { PhaseInter, RecordInter } from "../../interface/RecordInterface";
+import { RecordInter } from "../../interface/RecordInterface";
 import TimeLine from "../../components/TimeLine/TimeLine";
 import style from "./input-record.module.scss";
 import Record from "../../components/Record/Record";
@@ -39,6 +40,7 @@ const App: React.FC = () => {
   const peopleinfo: PersonInfoInter[] = useSelector(selectPeopleInfoByDivison);
   const recordsByPersonId: RecordInter[] = useSelector(selectRecordsByPersonId);
   const currentPersonId = useSelector(selectCurrentPersonId);
+  const currentDivisionId = useSelector(selectCurrentDivisionId);
   const currentPeronInfo = useSelector(selectCurrentPersonInfo);
   const onPersonChange = async (value: any) => {
     if (!value) {
@@ -49,16 +51,17 @@ const App: React.FC = () => {
       dispatch(resetCurrentPerson());
       return;
     }
-    const id: number = value[1];
     dispatch(resetTmpPhaseById());
     dispatch(setShowAdding(true));
     dispatch(changeRecordStatus("default"));
-    dispatch(getRecordsByPersonIdAsync(id));
-    dispatch(setCurrentPersonId(id));
+    dispatch(setCurrentDivisionId(value[0]));
+    dispatch(getRecordsByPersonIdAsync(value[1]));
+    dispatch(setCurrentPersonId(value[1]));
   };
 
   useEffect(() => {
     dispatch(getPeopleInfoListAsync());
+    console.log(formatPeopleInfo(peopleinfo));
   }, [dispatch]);
 
   useEffect(() => {
@@ -98,6 +101,11 @@ const App: React.FC = () => {
         <Header className={style.header}>
           <span>选择休假人: </span>
           <Cascader
+            defaultValue={
+              currentDivisionId && currentPersonId
+                ? [currentDivisionId, currentPersonId]
+                : undefined
+            }
             options={formatPeopleInfo(peopleinfo)}
             onChange={onPersonChange}
             placeholder="Please select"

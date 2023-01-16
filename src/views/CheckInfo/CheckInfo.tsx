@@ -50,17 +50,15 @@ const calcSpent = (
   // 1.计算每个人的已休假天数（遍历个人phases）(在原数据上添加新属性spent，并返回新的数据)
   const newPeopleInfo = peopleInfo.map((personinfo) => {
     let spent: number = 0;
-    personinfo.record.map((_record) => {
-      return _record.phase.map((_phase) => {
-        console.log(new Date(_phase.end_at as Date).valueOf());
-
+    personinfo.record.forEach((_record) => {
+      _record.phase.forEach((_phase) => {
         let duration =
           new Date(_phase.end_at as Date).valueOf() -
           new Date(_phase.start_at as Date).valueOf();
         duration = Math.floor(duration / 1000 / 60 / 60 / 24) + 1;
         spent += duration;
-        return _phase;
       });
+      spent -= _record.discount ? _record.discount : 0;
     });
     return Object.assign({}, personinfo, { spent });
   });

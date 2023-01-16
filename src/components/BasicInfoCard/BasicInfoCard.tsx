@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Card,
   Button,
@@ -8,10 +8,11 @@ import {
   Radio,
   InputNumber,
   Popconfirm,
+  RadioChangeEvent,
 } from "antd";
 import { PersonInfoInter } from "../../interface/PeopleInterface";
 import style from "./basicinfo-card.module.scss";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store/store";
 import axios from "axios";
 import { App as globalAntd } from "antd";
@@ -29,12 +30,13 @@ const App: React.FC<CardProps> = (props: CardProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const staticFunction = globalAntd.useApp();
   const message = staticFunction.message;
-
   const [status, setStatus] = useState<CardStatus>(
     props.initialStatus as CardStatus
   );
 
   const formRef = useRef(null);
+  const [withPartnerDisabled, setWithPartnerDisabled] =
+    useState<boolean>(false);
 
   let { personinfo: tmp } = props;
   const personinfo = tmp as PersonInfoInter;
@@ -91,6 +93,15 @@ const App: React.FC<CardProps> = (props: CardProps) => {
     dispatch(getPeopleInfoListAsync());
   };
 
+  const handleMarriedChange = (e: RadioChangeEvent) => {
+    if (!e.target.value) {
+      // 如果选择未婚，则夫妻异地自动为否
+      (formRef as any).current.setFieldValue("not_with_partner", false);
+      // 设置夫妻异地为饮用
+      setWithPartnerDisabled(true);
+    }
+  };
+
   const formatCatagory = (catagory: number) => {
     switch (catagory) {
       case 0:
@@ -109,7 +120,7 @@ const App: React.FC<CardProps> = (props: CardProps) => {
       return (
         <div className={style["data-card"]}>
           <p>类别：{formatCatagory(personinfo.catagory as number)}</p>
-          <p>干龄：{personinfo.work_age}</p>
+          <p>军龄：{personinfo.work_age}</p>
           <p>婚姻状况：{personinfo.married ? "是" : "否"}</p>
           <p>夫妻异地：{personinfo.not_with_partner ? "是" : "否"}</p>
           <p>父母异地：{personinfo.not_with_parent ? "是" : "否"}</p>
@@ -194,20 +205,20 @@ const App: React.FC<CardProps> = (props: CardProps) => {
               </Select>
             </Form.Item>
             <Form.Item
-              label="干龄"
+              label="军龄"
               name="work_age"
-              rules={[{ required: true, message: "请输入干龄" }]}
+              rules={[{ required: true, message: "请输入军龄" }]}
               className={style["form-item"]}
             >
               <InputNumber />
             </Form.Item>
             <Form.Item
-              label="婚姻状况"
+              label="是否已婚"
               name="married"
-              rules={[{ required: true, message: "请选择婚姻状况" }]}
+              rules={[{ required: true, message: "是否已婚" }]}
               className={style["form-item"]}
             >
-              <Radio.Group>
+              <Radio.Group onChange={handleMarriedChange}>
                 <Radio value={true}> 是 </Radio>
                 <Radio value={false}> 否 </Radio>
               </Radio.Group>
@@ -218,7 +229,7 @@ const App: React.FC<CardProps> = (props: CardProps) => {
               rules={[{ required: true, message: "请选择是否夫妻异地" }]}
               className={style["form-item"]}
             >
-              <Radio.Group>
+              <Radio.Group disabled={withPartnerDisabled}>
                 <Radio value={true}> 是 </Radio>
                 <Radio value={false}> 否 </Radio>
               </Radio.Group>
